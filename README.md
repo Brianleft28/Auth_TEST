@@ -8,7 +8,7 @@ Dentro del directorio `data` se encuentra el archivo `users.json`, que contiene 
 El archivo `.env` debe estar ubicado en el directorio raíz del proyecto y debe contener las siguientes variables de entorno:
 
 ```sh
-API_URL=http://nonexistentapi.com/users
+API_URL=http://nonexistentapi.com/
 TIMEOUT=5000
 ```
 
