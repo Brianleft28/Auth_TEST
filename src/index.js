@@ -1,113 +1,120 @@
 /* Importar módulos necesarios */
 import fs from "fs";
+import inquirer from "inquirer";
+import Table from "cli-table3";
+import UserService from "./services/userService.js";
 import chalk from "chalk";
-import axios from "axios";
-import config from "../config.js";
+import { logInfo } from "./utils/logger.js";
 
-/* Leer archivo JSON */
-const users = JSON.parse(fs.readFileSync("./src/data/users.json", "utf-8"));
+const userService = new UserService();
 
-console.log("Usuarios:", users);
+/* Función para mostrar menu principal */
+async function mainMenu() {
+  const answers = await inquirer.prompt([
+    {
+      type: "list",
+      name: "action",
+      message: "Seleccione una opción:",
+      choices: [
+        { name: "Verificar legajo", value: "verify_singular" },
+        { name: "Verificar legajos y permisos", value: "verify" },
+        { name: "Salir", value: "exit" },
+      ],
+    },
+  ]);
 
-/*  Url de la api y timeout desde la configuracion */
-const apiUrl = config.api.url;
-const timeout = config.timeout;
+  switch (answers.action) {
+    case "verify":
+      await selectJsonFile();
+      break;
+    case "verify_singular":
+      await singularUser();
+      break;
+    case "exit":
+      logInfo("Saliendo...");
+      process.exit();
+  }
 
-console.log(chalk.blue.bold(`API URL: ${apiUrl}`));
-console.log("Timeout:", timeout);
-
-/* Función para verificar si un usuario existe en la base de datos */
-async function checkUserExists(legajo, password) {
-  try {
-    const response = await axios.post(
-      `${apiUrl}`,
+  // Función para seleccionar un archivo JSON
+  async function selectJsonFile() {
+    const { filePath } = await inquirer.prompt([
       {
-        legajo: legajo,
-        password: password,
+        type: "list",
+        name: "filePath",
+        message: "Seleccione una lista de usuarios para verificar permisos:",
+        choices: fs
+          .readdirSync("./src/data")
+          .map((file, index) => ({
+            name: `${index + 1}. ${file}`,
+            value: `./src/data/${file}`,
+          })),
       },
+    ]);
+    const users = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+
+    const { appName } = await inquirer.prompt([
       {
-        timeout: timeout,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+        type: "list",
+        name: "appName",
+        message: "Seleccione la aplicación para verificar permisos:",
+        choices: [
+          { name: "VUS Peatonal", value: 1 },
+          {
+            name: "VUS Ratti",
+            value: 10,
+          },
+          { name: "Habilitaciones", value: 12 },
+        ],
+      },
+    ]);
 
-    if (response.status === 200 && response.data && !response.data.error) {
-      console.log("---------------------------------------");
-      console.log(
-        chalk.greenBright.bold(`Usuario encontrado: ${response.data.body.name}`)
-      );
+    const appId = appName;
+    await userService.verifyUsers(users, appId);
+  }
+  // Funciòn para buscar un usuario en particular
+  async function singularUser() {
+    const { legajo } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "legajo",
+        message: "Ingrese el legajo del usuario:",
+      },
+    ]);
+    const { password } = await inquirer.prompt([
+      {
+        type: "password",
+        name: "password",
+        message: "Ingrese la contraseña del usuario:",
+      },
+    ]);
+    const response = await userService.checkUser(legajo, password);
 
-      return true;
+    if (response && response.exists) {
+      const table = new Table({
+        head: [chalk.white.bold("Aplicación"), chalk.white.bold("Rol")],
+        colWidths: [40, 20],
+      });
+      console.log("-".repeat(50));
+      console.log(chalk.green.bold("Usuario encontrado!"));
+      console.log(chalk.green.bold("Nombre: "), response.name);
+      console.log("-".repeat(50));
+      console.log(chalk.green.bold("Permisos: "));
+      response.permissions.forEach((permission) => {
+        table.push([
+          permission.apps_name + " || " + permission.apps_description,
+          permission.role,
+        ]);
+      });
+      console.log(table.toString());
     } else {
-      console.log(`Respuesta inesperada: ${response.status}`);
-      return false;
-    }
-  } catch (error) {
-    if (error.response) {
-      if (
-        error.response.status === 401 &&
-        error.response.data.body &&
-        error.response.data.body.errors
-      ) {
-        const errorMsg = error.response.data.body.errors[0].msg;
-        if (errorMsg === "Ususario o Clave incorrecta.") {
-          console.log("---------------------------------------");
-          console.log(chalk.red.bold(`Usuario o clave incorrecta: ${legajo}`));
-          return false;
-        }
-      } else if (error.response.status === 404) {
-        console.log("---------------------------------------");
-        console.log(chalk.red.bold(`Usuario no encontrado: ${legajo} (404)`));
-        console.log(error.response.data);
-        return false;
-      }
-    } else if (error.code === "ENOTFOUND") {
+      console.log("-".repeat(50));
+      console.log(chalk.red.bold(`Legajo o contraseña incorrecta.`));
       console.log(
-        chalk.red.bold(
-          `Error de conexión al verificar el usuario ${legajo}:`,
-          error.message
-        )
+        chalk.red.bold(`El legajo ${legajo} es incorrecto o podría no existir.`)
       );
-      return null;
-    } else {
-      console.log(
-        chalk.red.bold(
-          `Error al verificar el usuario ${legajo}:`,
-          error.message
-        )
-      );
-      return null;
+      console.log("-".repeat(50));
     }
   }
 }
-
-/* Función principal para verificar todos los usuarios */
-async function verifyUsers(users) {
-  for (const user of users) {
-    const exists = await checkUserExists(user.legajo, user.password);
-    if (exists === null) {
-      console.log(
-        chalk.red.bold(
-          `No se pudo verificar el usuario ${user.legajo} debido a un error de conexión.`
-        )
-      );
-    } else if (exists) {
-      console.log(
-        chalk.bold.green(
-          `El usuario ${user.legajo} existe en la base de datos.`
-        )
-      );
-    } else {
-      console.log(
-        chalk.red.bold(
-          `El usuario ${user.legajo} no existe en la base de datos.`
-        )
-      );
-    }
-  }
-}
-
 /* Ejecutar la verificación de usuarios */
-verifyUsers(users);
+mainMenu();

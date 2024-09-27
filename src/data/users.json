@@ -44,10 +44,6 @@
     "password": "123456"
   },
   {
-    "legajo": "TIPSA",
-    "password": "123456"
-  },
-  {
     "legajo": "0189",
     "password": "123456"
   },
@@ -93,6 +89,38 @@
   },
   {
     "legajo": "5272",
+    "password": "123456"
+  },
+  {
+    "legajo": "5546",
+    "password": "123456"
+  },
+  {
+    "legajo": "2584",
+    "password": "123456"
+  },
+  {
+    "legajo": "3580",
+    "password": "123456"
+  },
+  {
+    "legajo": "6370",
+    "password": "123456"
+  },
+  {
+    "legajo": "2500",
+    "password": "123456"
+  },
+  {
+    "legajo": "7542",
+    "password": "123456"
+  },
+  {
+    "legajo": "4160",
+    "password": "123456"
+  },
+  {
+    "legajo": "7683",
     "password": "123456"
   }
 ]

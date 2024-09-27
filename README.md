@@ -1,28 +1,54 @@
+![Node.js](https://img.shields.io/badge/Node.js-16.13.0-green)
+![Axios](https://img.shields.io/badge/Axios-^1.7.7-blue)
+![Chalk](https://img.shields.io/badge/Chalk-^5.3.0-brightgreen)
+![cli-table3](https://img.shields.io/badge/cli--table3-^0.6.5-orange)
+![dotenv](https://img.shields.io/badge/dotenv-^16.4.5-yellow)
+![Inquirer](https://img.shields.io/badge/Inquirer-^9.1.4-purple)
 
-## Información
-
-### Estructura de Datos
-Dentro del directorio `data` se encuentra el archivo `users.json`, que contiene la lista de usuarios que se leen para verificar su existencia en la base de datos.
-
-### Configuración del Archivo .env
-El archivo `.env` debe estar ubicado en el directorio raíz del proyecto y debe contener las siguientes variables de entorno:
-
+--- 
+## Instalación
+1. Clona el repositorio:
 ```sh
-API_URL=http://nonexistentapi.com/
+  git clone https://brianbenegas-admin@bitbucket.org/municipio-ituzaingo/auth_test.git
+```
+2. Navega al directorio del projecto:
+```sh
+  cd auth_test
+```
+3. Instala las dependencias
+```sh
+  npm install
+```
+4. Crear un archivo `.env` en el directorio raíz del projecto con las siguientes variables
+```sh
+API_URL=http://auth.k8s.ituzaingo.dns/api/v2/login
 TIMEOUT=5000
 ```
-
----
-
-## Ejecución
-Para ejecutar la rutina, usa el siguiente `comando`:
-```bash
+5. Para comenzar la rutina, ejecute el siguiente comando:
+```sh
 npm run check
 ```
+--- 
 
+### Estructura de Datos
+Los archivos `JSON` que se listan en la opción para verificar permisos y legajos, se encuentran dentro de `src/data`. Los mismos deben estar en formato `JSON` y cumplir con el formato: 
 
+```json
+[
+    {
+        "legajo" : "7683",
+        "password": "123456"
+    },
+    {
+        "legajo": "1234",
+        "password": "123456"
+    }
+] 
+```
+
+--- 
 ---
 
 ## Notas adicionales
-- Asegúrate de que el archivo .env esté correctamente configurado en el directorio raíz del proyecto.
-- Verifica que el archivo users.json en el directorio data contenga la lista de usuarios que deseas verificar.
+- Asegurarse de que el archivo .env esté correctamente configurado en el directorio raíz del proyecto.
+- Verifica que el directorio `src/data` contenga el archivo `JSON` con los usuarios a verificar.
