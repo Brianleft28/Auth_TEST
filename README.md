@@ -9,11 +9,11 @@
 ## Instalación
 1. Clona el repositorio:
 ```sh
-  git clone https://brianbenegas-admin@bitbucket.org/municipio-ituzaingo/auth_test.git
+  git clone https://github.com/Brianleft28/Auth_TEST
 ```
 2. Navega al directorio del projecto:
 ```sh
-  cd auth_test
+  cd Auth_TEST
 ```
 3. Instala las dependencias
 ```sh
@@ -21,7 +21,7 @@
 ```
 4. Crear un archivo `.env` en el directorio raíz del projecto con las siguientes variables
 ```sh
-API_URL=http://auth.k8s.ituzaingo.dns/api/v2/login
+API_URL=
 TIMEOUT=5000
 ```
 5. Para comenzar la rutina, ejecute el siguiente comando:
