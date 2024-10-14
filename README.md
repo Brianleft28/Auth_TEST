@@ -5,6 +5,8 @@
 ![dotenv](https://img.shields.io/badge/dotenv-^16.4.5-yellow)
 ![Inquirer](https://img.shields.io/badge/Inquirer-^9.1.4-purple)
 
+# Rutina de verificación de usuarios y permisos
+
 ---
 
 ## Instalación
